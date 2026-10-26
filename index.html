@@ -3,7 +3,7 @@
 .ingredient-results{position:absolute;z-index:20;top:100%;left:0;right:0;max-height:220px;overflow-y:auto;overscroll-behavior:contain;background:#fff;border:1px solid #c8d7e8;border-radius:9px;box-shadow:0 8px 18px #1b35502b;margin-top:4px}.ingredient-results[hidden]{display:none}.ingredient-option{display:block;width:100%;border:0;border-bottom:1px solid #edf1f6;background:#fff;padding:12px;text-align:left;font-size:13px;color:#243b54}.ingredient-option:hover,.ingredient-option:focus{background:#e9f1ff}.ingredient-search{width:100%}
 .login{max-width:420px;margin:8vh auto;background:white;border:1px solid #e3e9f0;border-radius:15px;padding:28px}.login h1{color:#2356a4}.login input{width:100%;padding:12px;border:1px solid #d5dfe9;border-radius:8px;margin:6px 0 14px}.login button{width:100%}.warn{background:#fff8e6;color:#78551b;padding:12px;border-radius:8px;font-size:13px}.secret{background:#f7f9fc;border:1px solid #dce5ef;border-radius:10px;padding:15px}.ingrow{display:grid;grid-template-columns:2fr 1fr auto;gap:8px;margin:8px 0}.ingrow input,.ingrow select{min-width:0;width:100%;padding:9px;border:1px solid #d5dfe9;border-radius:8px}.hidden{display:none!important}@media(max-width:650px){.ingrow{grid-template-columns:1fr 90px auto}}</style></head><body>
 <div id="login" class="login"><h1>충현 Manager</h1><p class="muted">Supabase 연결 · 계정 로그인</p><form id="loginForm"><label class="field">이메일<input id="email" type="email" autocomplete="username" required></label><label class="field">비밀번호<input id="password" type="password" autocomplete="current-password" required></label><button class="primary">로그인</button></form><p id="loginMsg" class="muted" role="status"></p><button class="secondary" id="forgotBtn" type="button" style="width:100%;margin-bottom:14px">비밀번호를 잊으셨나요?</button><div id="forgotPanel" class="hidden"><p class="muted">위 이메일 주소로 비밀번호 변경 링크를 보냅니다. GitHub Pages에 게시한 뒤 사용해 주세요.</p><button class="primary" id="sendReset" type="button" style="width:100%">재설정 이메일 보내기</button><p id="resetRequestMsg" class="muted" role="status"></p></div><div class="warn">기존 데이터는 유지됩니다. 직원 계정은 대표자가 승인한 권한으로만 접근할 수 있습니다.</div></div>
-<div id="recovery" class="login hidden"><h1>새 비밀번호 설정</h1><p class="muted">이메일로 받은 재설정 링크로 접속했습니다.</p><form id="recoveryForm"><label class="field">새 비밀번호<input id="newPassword" type="password" autocomplete="new-password" minlength="8" required></label><label class="field">새 비밀번호 확인<input id="confirmPassword" type="password" autocomplete="new-password" minlength="8" required></label><button class="primary">비밀번호 변경</button></form><p id="recoveryMsg" class="muted" role="status"></p></div><div class="app hidden" id="app"><aside class="sidebar"><div class="brand">충현 Manager<small>Supabase · 직원 관리 v2.2</small></div><div class="navs"><button class="nav active" data-page="dashboard">▦ 대시보드</button><button class="nav" data-page="materials">▣ 원자재</button><button class="nav" data-page="recipes">▤ 레시피</button><button class="nav" data-page="secret">🔒 비밀 레시피</button><button class="nav" data-page="access">👥 직원 관리</button></div></aside><main class="main"><div class="top"><div><h1 id="pageTitle">대시보드</h1><div class="muted">실제 Supabase 저장 · 권한별 사용</div></div><div class="actions"><span class="pill" id="status">연결 중</span><button class="secondary" id="reload">↻ 새로고침</button><button class="secondary" id="logout">로그아웃</button></div></div><div id="view"></div></main></div>
+<div id="recovery" class="login hidden"><h1>비밀번호 설정</h1><p class="muted">이메일로 받은 초대 또는 비밀번호 재설정 링크로 접속했습니다.</p><form id="recoveryForm"><label class="field">새 비밀번호<input id="newPassword" type="password" autocomplete="new-password" minlength="8" required></label><label class="field">새 비밀번호 확인<input id="confirmPassword" type="password" autocomplete="new-password" minlength="8" required></label><button class="primary">비밀번호 변경</button></form><p id="recoveryMsg" class="muted" role="status"></p></div><div class="app hidden" id="app"><aside class="sidebar"><div class="brand">충현 Manager<small>Supabase · 직원 관리 v2.2</small></div><div class="navs"><button class="nav active" data-page="dashboard">▦ 대시보드</button><button class="nav" data-page="materials">▣ 원자재</button><button class="nav" data-page="recipes">▤ 레시피</button><button class="nav" data-page="secret">🔒 비밀 레시피</button><button class="nav" data-page="access">👥 직원 관리</button></div></aside><main class="main"><div class="top"><div><h1 id="pageTitle">대시보드</h1><div class="muted">실제 Supabase 저장 · 권한별 사용</div></div><div class="actions"><span class="pill" id="status">연결 중</span><button class="secondary" id="reload">↻ 새로고침</button><button class="secondary" id="logout">로그아웃</button></div></div><div id="view"></div></main></div>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const URL='https://rkohydhhtpjojiohmjkl.supabase.co';
@@ -72,7 +72,7 @@ $('#loginForm').onsubmit=async e=>{
 };
 // GitHub Pages의 고정 주소. 사이트 게시 후 Supabase Authentication > URL Configuration에 등록해야 합니다.
 const SITE_URL='https://jch79624053.github.io/chunghyeon/';
-let recoveryMode=location.hash.includes('type=recovery') || new URLSearchParams(location.search).get('type')==='recovery';
+let recoveryMode=(location.hash.includes('type=recovery') || location.hash.includes('type=invite')) || ['recovery','invite'].includes(new URLSearchParams(location.search).get('type'));
 function showRecovery(){recoveryMode=true;$('#app').classList.add('hidden');$('#login').classList.add('hidden');$('#recovery').classList.remove('hidden')}
 $('#forgotBtn').onclick=()=>$('#forgotPanel').classList.toggle('hidden');
 $('#sendReset').onclick=async()=>{
@@ -122,8 +122,22 @@ function renderStaff(){
  <td><label><input type="checkbox" class="staff-active" ${u.active?'checked':''} ${self?'disabled':''}> 활성</label></td>
  <td>${self?'<span class="muted">보호됨</span>':`<button type="button" class="primary staff-save">저장</button>`}</td></tr>`}).join('')||'<tr><td colspan="5" class="empty">등록된 직원 프로필이 없습니다.</td></tr>'}
  </tbody></table></div><p id="staffMsg" class="muted" role="status"></p></section>
- <section class="panel"><h2>직원 계정 추가 안내</h2><p class="muted">이 화면은 이미 등록된 직원의 권한을 관리합니다. 새 로그인 계정 생성은 아직 지원하지 않습니다. Supabase Authentication에 사용자를 등록한 뒤 해당 사용자 ID로 staff_profiles 행을 연결해야 목록에 나타납니다.</p>
- <div class="note">직원은 일반 레시피 전용 조회 함수를 사용합니다. 계정 생성은 Supabase Authentication에서 진행하며, 보안 정책은 통합 SQL을 적용해야 합니다.</div></section>`;
+ <section class="panel"><h2>✉ 신규 직원 초대</h2><p class="muted">대표자만 초대할 수 있습니다. 직원에게 이메일이 발송되고, 직원은 초대 링크에서 비밀번호를 설정합니다.</p>
+ <form id="inviteForm"><div class="formgrid"><label class="field">직원 이름<input name="name" maxlength="80" required placeholder="홍길동"></label><label class="field">직원 이메일<input name="email" type="email" required placeholder="staff@example.com"></label><label class="field">권한<select name="role"><option value="staff">직원</option><option value="manager">관리자</option></select></label></div>
+ <div class="actions"><button class="primary" id="inviteBtn">초대 메일 보내기</button></div></form><p id="inviteMsg" class="muted" role="status"></p><div class="note">비밀 레시피 권한은 초대 후 직원 관리에서 대표자가 별도 승인합니다. Supabase Edge Function <b>invite-staff</b> 배포가 필요합니다.</div></section>`;
+ $('#inviteForm').onsubmit=async e=>{
+  e.preventDefault();const msg=$('#inviteMsg'),btn=$('#inviteBtn');
+  const f=new FormData(e.target),name=String(f.get('name')||'').trim(),email=String(f.get('email')||'').trim().toLowerCase(),role=String(f.get('role'));
+  if(!name||!email||!['staff','manager'].includes(role))return msg.textContent='입력값을 확인해 주세요.';
+  if(!confirm(`${name} (${email})에게 ${role==='manager'?'관리자':'직원'} 초대 메일을 보낼까요?`))return;
+  btn.disabled=true;msg.textContent='초대 메일 전송 중...';
+  try{
+   const {data,error}=await supabase.functions.invoke('invite-staff',{body:{name,email,role}});
+   if(error){let detail=error.message;try{const r=await error.context?.json();detail=r?.error||detail}catch{}throw new Error(detail)}
+   if(!data?.ok)throw new Error(data?.error||'초대 처리 결과를 확인할 수 없습니다.');
+   msg.textContent='초대 요청 완료. 직원 메일함을 확인해 주세요.';e.target.reset();await fetchStaff();
+  }catch(err){msg.textContent='초대 실패: '+(err?.message||String(err))}finally{btn.disabled=false}
+ };
  $('#refreshStaff').onclick=fetchStaff;
  document.querySelectorAll('.staff-save').forEach(btn=>btn.onclick=async()=>{
   const tr=btn.closest('tr'),u=staffProfiles[Number(tr.dataset.staffIndex)];
