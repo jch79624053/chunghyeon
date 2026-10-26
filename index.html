@@ -21,7 +21,21 @@ function fmtCost(c){return c==null?'가격 확인 필요':won(Math.round(c))}
 function fail(e){alert(e?.message||String(e))}
 async function load(){ $('#status').textContent='동기화 중';const tables=['materials','recipes','recipe_items','material_price_history','secret_recipes','secret_recipe_items'];let result=await Promise.all(tables.map(t=>supabase.from(t).select('*').order('id')));let error=result.find(r=>r.error)?.error;if(error){$('#status').textContent='조회 오류';fail(error);return} [materials,recipes,items,history,secrets,secretItems]=result.map(r=>r.data||[]);$('#status').textContent='● Supabase 연결됨';render()}
 async function check(){let {data:{user},error}=await supabase.auth.getUser();if(error||!user){$('#app').classList.add('hidden');$('#login').classList.remove('hidden');return}const p=await supabase.from('staff_profiles').select('role,active').eq('user_id',user.id).maybeSingle();if(p.error||p.data?.role!=='owner'||!p.data?.active){await supabase.auth.signOut();$('#loginMsg').textContent='대표자 권한이 없는 계정입니다. 관리자·직원 연결은 보안 검증 후 제공됩니다.';$('#app').classList.add('hidden');$('#login').classList.remove('hidden');return}profile=p.data;$('#login').classList.add('hidden');$('#app').classList.remove('hidden');await load()}
-$('#loginForm').onsubmit=async e=>{e.preventDefault();$('#loginMsg').textContent='로그인 중...';const {error}=await supabase.auth.signInWithPassword({email:$('#email').value.trim(),password:$('#password').value});if(error){$('#loginMsg').textContent=error.message;return}$('#password').value='';$('#loginMsg').textContent='';await check()};
+$('#loginForm').onsubmit=async e=>{
+  e.preventDefault();
+  $('#loginMsg').textContent='로그인 중...';
+  const {error}=await supabase.auth.signInWithPassword({
+    email:$('#email').value.trim(),
+    password:$('#password').value
+  });
+  if(error){
+    $('#loginMsg').textContent='오류: '+error.message+' | 코드: '+(error.code||'없음')+' | 상태: '+(error.status||'없음');
+    return;
+  }
+  $('#password').value='';
+  $('#loginMsg').textContent='';
+  await check();
+};
 // GitHub Pages의 고정 주소. 사이트 게시 후 Supabase Authentication > URL Configuration에 등록해야 합니다.
 const SITE_URL='https://jch79624053.github.io/chunghyeon/';
 let recoveryMode=location.hash.includes('type=recovery') || new URLSearchParams(location.search).get('type')==='recovery';
