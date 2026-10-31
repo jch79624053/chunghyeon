@@ -4,3 +4,11 @@ project_id = "chunghyeon-manager"
 verify_jwt = false
 [functions.price-lookup]
 verify_jwt = false
+
+# Intended Auth configuration. Remote settings have NOT been applied by this file.
+[auth]
+site_url = "https://jch79624053.github.io/chunghyeon/"
+additional_redirect_urls = ["https://jch79624053.github.io/chunghyeon/", "https://jch79624053.github.io/chunghyeon/?type=invite"]
+
+[auth.email]
+enable_confirmations = true
