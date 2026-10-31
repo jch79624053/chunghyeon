@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {parseSettlement,settlementView,settlementAdvice,readSettlementCSV} from '../finance-import.mjs';
+function fixture(){const r=Array.from({length:38},()=>[]);r[0]=['9월 월말정산'];r[1]=[null,null,'고정출비'];r[2]=[null,null,'월세','노랑우산'];r[4]=[null,null,100,20];r[6]=[null,null,'변동지출비'];r[7]=[null,null,'공과금'];r[9]=[null,null,30,...Array(11).fill(null),30];r[29]=[null,null,'고정지출비','변동지출비','인건비','식재료','주류'];r[30]=[null,null,120,30,200,300,50];r[32]=[null,null,'실매출','총지출','순수익'];r[33]=[null,null,1000,700,300];return r}
+const parse=rows=>parseSettlement({store:'검증',format:'ilo',year:2026,sheet:'26년 월말정산',rows,asOfMonth:'2026-10'});
+test('합계 열을 세부 지출에 중복 포함하지 않음',()=>{const [m]=parse(fixture());assert.equal(m.reconciliationDifference,0);assert.equal(m.groups.reduce((s,g)=>s+g.amount,0),700);assert.ok(m.groups.some(g=>g.category.includes('적립')));assert.equal(m.issues.length,0);});
+test('월 순서가 뒤섞여도 달력순 정렬하고 미래·미입력 상태 분리',()=>{const sep=fixture(),nov=fixture(),oct=fixture();nov[0]=['11월 월말정산'];nov[33][2]=null;oct[0]=['10월 월말정산'];oct[33][2]=null;const m=parse([...sep,...nov,...oct]);assert.deepEqual(m.map(x=>x.month),['2026-09','2026-10','2026-11']);assert.equal(m[1].status,'missing_revenue');assert.equal(m[2].status,'future');assert.equal(settlementView(m[1]).expenseRatio,null);});
+test('진행 중 월은 전월 전체에 대한 절감 확정 판단 보류',()=>{const r=fixture();r[0]=['10월 월말정산'];const [m]=parse(r);assert.equal(m.status,'provisional');assert.ok(settlementAdvice(m,[])[0].includes('보류'));});
+test('세부 금액 초과 시 원본 소계 보존과 경고',()=>{const r=fixture();r[9][2]=100;const [m]=parse(r);assert.equal(m.reconciliationDifference,0);assert.ok(m.issues.length);assert.ok(settlementAdvice(m,[])[0].includes('보류'));});
+test('CSV 통화·따옴표·빈값 처리, 수식 문자열 실행 없음',()=>{const r=readSettlementCSV('\uFEFF9월 월말정산,,\r\n"₩1,000",,"=SUM(A1:A3)"');assert.equal(r[1][0],1000);assert.equal(r[1][1],null);assert.equal(r[1][2],'=SUM(A1:A3)');assert.throws(()=>readSettlementCSV('"closed'));});
+test('필수 월말 양식 누락 또는 월 제목 중복은 가져오기 거부',()=>{assert.throws(()=>parse([['9월 월말정산']]));assert.throws(()=>parse([...fixture(),...fixture()]));});
