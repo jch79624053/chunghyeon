@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {summarizeMonths,compareMonth} from '../finance.mjs';
+const row=(store,month,kind,amount,sourceKey,category='식자재')=>({store,month,kind,amount,sourceKey,category});
+test('매장과 월을 분리하고 비용 비중·정산 차액 계산',()=>{const [a,b]=summarizeMonths([row('가','2026-09','revenue',1000,'a'),row('가','2026-09','expense',300,'b'),row('나','2026-09','revenue',2000,'c')]);assert.equal(a.expenseRatio,30);assert.equal(a.balance,700);assert.equal(b.expenses,0);});
+test('매출 취소와 비용 환급을 각각 원래 흐름에 반영',()=>{const [g]=summarizeMonths([row('가','2026-09','revenue',1000,'a'),row('가','2026-09','revenue_refund',100,'b'),row('가','2026-09','expense',300,'c'),row('가','2026-09','expense_refund',50,'d')]);assert.equal(g.revenue,900);assert.equal(g.expenses,250);});
+test('대출·이체·설비·대표자 인출은 지출 원가율에 섞지 않음',()=>{const [g]=summarizeMonths([row('가','2026-09','revenue',1000,'a'),row('가','2026-09','capital',500,'b'),row('가','2026-09','financing_in',500,'c')]);assert.equal(g.expenseRatio,0);assert.equal(g.excluded.length,2);});
+test('0 매출 비중은 0%가 아닌 계산 불가',()=>{assert.equal(summarizeMonths([row('가','2026-09','expense',100,'a')])[0].expenseRatio,null);});
+test('원본 중복과 잘못된 월·금액 거부',()=>{assert.throws(()=>summarizeMonths([row('가','2026-09','expense',1,'same'),row('가','2026-09','expense',1,'same')]));assert.throws(()=>summarizeMonths([row('가','2026-13','expense',1,'a')]));assert.throws(()=>summarizeMonths([row('가','2026-09','expense',NaN,'a')]));});
+test('누락된 직전월을 건너뛰어 비교하지 않음',()=>{const groups=summarizeMonths([row('가','2026-07','revenue',100,'a'),row('가','2026-09','revenue',200,'b')]);assert.equal(compareMonth(groups[1],groups).previous,null);});
+test('전월 비중 변화는 %p로 계산, 다른 매장은 비교하지 않음',()=>{const g=summarizeMonths([row('가','2025-12','revenue',1000,'a'),row('가','2025-12','expense',300,'b'),row('가','2026-01','revenue',1000,'c'),row('가','2026-01','expense',400,'d')]);const change=compareMonth(g[1],g);assert.equal(change.changes[0].ratioChangePoints,10);assert.ok(change.observations[0].includes('식자재'));});

@@ -1,0 +1,6 @@
+project_id = "chunghyeon-manager"
+# Each function explicitly calls Auth getUser and checks active application roles.
+[functions.invite-staff]
+verify_jwt = false
+[functions.price-lookup]
+verify_jwt = false
