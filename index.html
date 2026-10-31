@@ -10,8 +10,8 @@ textarea{font:inherit;border:1px solid #d5dfe9;border-radius:8px;padding:12px;re
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.95.0/+esm';
 import {renderFinanceUI} from './finance-ui.mjs';
 import {base, priceUnit, safeLink, costs, analysis, priceChange, provider} from './core.mjs';
-const URL='https://yafmlyemkvlsjplcurah.supabase.co';
-const KEY='sb_publishable_tBGL5v9jQv81vMpQQOr8UA_WwHAhP8O';
+import {appConfig,validateConfig} from './app-config.mjs';
+const {url:URL,publishableKey:KEY}=validateConfig(appConfig);
 const supabase=createClient(URL,KEY);
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const won=n=>Number(n||0).toLocaleString('ko-KR')+'원';

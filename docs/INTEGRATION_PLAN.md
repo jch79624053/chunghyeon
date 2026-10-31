@@ -2,7 +2,7 @@
 
 ## 구조
 
-index.html과 core.mjs는 GitHub Pages에서 실행하는 정적 클라이언트다. 클라이언트에는 공개용 Supabase 키만 포함한다. 서버용 비밀 키는 Edge Function 환경에서만 사용한다.
+index.html과 core.mjs는 GitHub Pages에서 실행하는 정적 클라이언트다. app-config.mjs에서 프로젝트 주소와 공개용 Supabase 키를 함께 관리한다. 서버용 비밀 키는 Edge Function 환경에서만 사용한다. 일반 build는 개발 검증용이며 build:release는 운영 대상 프로젝트 확인 전 실패한다.
 
 공개 테이블은 모두 RLS를 적용한다. 원자재·레시피 쓰기 권한을 클라이언트에 직접 부여하지 않고 인증과 역할을 검사하는 RPC로 저장한다. SECURITY DEFINER 구현은 비공개 manager_private 스키마에 두고 빈 search_path와 최소 EXECUTE 권한을 적용했다. 클라이언트가 호출하는 public 함수는 SECURITY INVOKER 래퍼다.
 
@@ -24,7 +24,7 @@ save_material은 원자재와 가격·포장 규격 이력을 같은 트랜잭�
 
 ## 검증
 
-npm test : 9개.
+npm test : 25개.
 npm run check : 클라이언트 문법·프로젝트 설정 검사.
 npm run build : 실제 클라이언트만 dist로 복사하고 QA 파일 제거.
 Deno check 및 tests/edge.test.ts : 서버 TypeScript와 6개 비인증 요청 검증.

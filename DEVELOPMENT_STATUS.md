@@ -1,6 +1,8 @@
 # 충현 Manager 개발 상태
 
-2026-10-30. 사용자 승인에 따라 비어 있는 새 Supabase 프로젝트 yafmlyemkvlsjplcurah를 대상으로 구축했다. 기존 rkohydhhtpjojiohmjkl 프로젝트와 공개 GitHub Pages는 변경하지 않았다.
+2026-10-31 갱신. 초기에는 비어 있는 새 Supabase 프로젝트 yafmlyemkvlsjplcurah를 대상으로 구축했다. 이후 사용자 요청에 따라 운영 계정 프로젝트로 이전해야 한다. 현재 연결에는 개발 프로젝트만 보이며 운영 대상 프로젝트의 접근·소유권 확인은 미완료다. 기존 rkohydhhtpjojiohmjkl 프로젝트와 공개 GitHub Pages는 변경하지 않았다.
+
+연결 설정을 app-config.mjs로 분리했다. 현재 개발 프로젝트에 대한 공개 배포용 build:release는 실패하며, 일반 build는 개발 검증용으로만 사용한다. 프로젝트 주소 불일치·서버 비밀 키·미확인 운영 설정 거부를 포함한 Node 테스트 총 25개와 문법 검사·개발 빌드를 통과했다. 이 설정 검사는 운영 계정을 자동 인증하거나 실제 로그인 테스트를 대체하지 않는다.
 
 ## 구현
 
